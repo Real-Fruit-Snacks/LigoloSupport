@@ -17,7 +17,7 @@ This helper script eliminates the manual setup by:
 
 ```bash
 # Download the script
-curl -O https://raw.githubusercontent.com/YOUR_USERNAME/ligolo-helper/main/ligolo-helper.sh
+curl -O https://raw.githubusercontent.com/Real-Fruit-Snacks/LigoloSupport/main/ligolo-helper.sh
 chmod +x ligolo-helper.sh
 
 # Run as root - that's it!
