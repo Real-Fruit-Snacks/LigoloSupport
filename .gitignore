@@ -1,0 +1,21 @@
+# Ligolo binaries (downloaded at runtime)
+ligolo-proxy
+ligolo-agent
+ligolo-agent.exe
+*.tar.gz
+*.zip
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+
+# Temp files
+*.tmp
+*.log
