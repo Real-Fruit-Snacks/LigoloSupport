@@ -5,6 +5,9 @@ ligolo-agent.exe
 *.tar.gz
 *.zip
 
+# Claude AI files
+CLAUDE.md
+
 # OS files
 .DS_Store
 Thumbs.db
