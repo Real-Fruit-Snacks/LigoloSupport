@@ -31,6 +31,7 @@ print_usage() {
     echo ""
     echo "Commands:"
     echo "  auto                  Full auto-setup: download, tun, and start proxy"
+    echo "  cleanup               Stop everything and remove routes/TUN interface"
     echo "  download              Download latest ligolo-ng binaries"
     echo "  setup-tun             Create and configure TUN interface"
     echo "  teardown-tun          Remove TUN interface"
@@ -49,6 +50,7 @@ print_usage() {
     echo "Examples:"
     echo "  $0 auto                     # One command to rule them all"
     echo "  $0 add-route 10.10.10.0/24  # Add route after agent connects"
+    echo "  $0 cleanup                  # Stop everything and clean up"
     echo "  $0 agent-cmd 192.168.1.100  # Show agent commands"
 }
 
@@ -303,6 +305,60 @@ show_status() {
     pgrep -a ligolo-proxy || echo "  Not running"
 }
 
+cleanup_all() {
+    check_root
+
+    echo -e "${BLUE}[*] Cleaning up ligolo-ng...${NC}"
+    echo ""
+
+    # Remove all routes via ligolo TUN
+    echo -e "${BLUE}[1/4] Removing routes via $TUN_NAME...${NC}"
+    local routes
+    routes=$(ip route | grep "$TUN_NAME" | awk '{print $1}')
+    if [[ -n "$routes" ]]; then
+        for route in $routes; do
+            ip route del "$route" dev "$TUN_NAME" 2>/dev/null && \
+                echo -e "  ${GREEN}Removed route: $route${NC}" || \
+                echo -e "  ${YELLOW}Failed to remove: $route${NC}"
+        done
+    else
+        echo -e "  ${YELLOW}No routes found${NC}"
+    fi
+    echo ""
+
+    # Stop file server
+    echo -e "${BLUE}[2/4] Stopping file server...${NC}"
+    if pkill -f "python3 -m http.server 8000" 2>/dev/null; then
+        echo -e "  ${GREEN}File server stopped${NC}"
+    else
+        echo -e "  ${YELLOW}File server not running${NC}"
+    fi
+    echo ""
+
+    # Kill proxy
+    echo -e "${BLUE}[3/4] Stopping ligolo-proxy...${NC}"
+    if pkill -f ligolo-proxy 2>/dev/null; then
+        echo -e "  ${GREEN}Proxy stopped${NC}"
+    else
+        echo -e "  ${YELLOW}Proxy not running${NC}"
+    fi
+    echo ""
+
+    # Remove TUN interface
+    echo -e "${BLUE}[4/4] Removing TUN interface...${NC}"
+    if ip link show "$TUN_NAME" &> /dev/null; then
+        ip link set "$TUN_NAME" down 2>/dev/null
+        ip tuntap del mode tun "$TUN_NAME" 2>/dev/null && \
+            echo -e "  ${GREEN}TUN interface $TUN_NAME removed${NC}" || \
+            echo -e "  ${YELLOW}Failed to remove TUN interface${NC}"
+    else
+        echo -e "  ${YELLOW}TUN interface not found${NC}"
+    fi
+    echo ""
+
+    echo -e "${GREEN}[+] Cleanup complete${NC}"
+}
+
 get_attacker_ip() {
     # Priority: tun0 > tun1 > tap0 > default route
     local ip=""
@@ -323,6 +379,18 @@ get_attacker_ip() {
     fi
 
     echo "<YOUR_IP>"
+}
+
+find_free_port() {
+    local port="${1:-8080}"
+    while ss -tuln 2>/dev/null | grep -q ":$port " || netstat -tuln 2>/dev/null | grep -q ":$port "; do
+        ((port++))
+        if [[ $port -gt 65535 ]]; then
+            echo "8080"
+            return
+        fi
+    done
+    echo "$port"
 }
 
 auto_setup() {
@@ -394,7 +462,7 @@ auto_setup() {
     echo -e "    ${GREEN}/tmp/a -connect ${attacker_ip}:${PROXY_PORT} -ignore-cert${NC}"
     echo ""
     echo "  WINDOWS:"
-    echo -e "    ${GREEN}.\\a.exe -connect ${attacker_ip}:${PROXY_PORT} -ignore-cert${NC}"
+    echo -e "    ${GREEN}.\\\\a.exe -connect ${attacker_ip}:${PROXY_PORT} -ignore-cert${NC}"
     echo ""
     echo -e "${BLUE}STEP 3: Wait for agent to connect${NC}"
     echo ""
@@ -434,6 +502,9 @@ auto_setup() {
     echo -e "${YELLOW}║    curl http://10.10.10.50          # Access internal web server      ║${NC}"
     echo -e "${YELLOW}║                                                                       ║${NC}"
     echo -e "${YELLOW}║  No proxychains needed!                                               ║${NC}"
+    echo -e "${YELLOW}║                                                                       ║${NC}"
+    echo -e "${YELLOW}║  When finished, clean up with:                                        ║${NC}"
+    echo -e "${YELLOW}║    sudo ${script_path} cleanup                                        ║${NC}"
     echo -e "${YELLOW}╚═══════════════════════════════════════════════════════════════════════╝${NC}"
     echo ""
     echo -e "${RED}TROUBLESHOOTING:${NC}"
@@ -452,6 +523,21 @@ auto_setup() {
     }
     trap cleanup EXIT
 
+    # Configure ligolo-ng to skip interactive prompts (disable WebUI)
+    rm -f "$LIGOLO_DIR/ligolo-ng.yaml" 2>/dev/null
+    rm -f "$HOME/.ligolo-proxy/ligolo-ng.yaml" 2>/dev/null
+    rm -f "./ligolo-ng.yaml" 2>/dev/null
+
+    mkdir -p "$HOME/.ligolo-proxy"
+    cat > "$HOME/.ligolo-proxy/ligolo-ng.yaml" << EOF
+daemon:
+  enabled: false
+api:
+  enabled: false
+webui:
+  enabled: false
+EOF
+
     "$LIGOLO_DIR/ligolo-proxy" -laddr "0.0.0.0:$PROXY_PORT" -selfcert
 }
 
@@ -461,6 +547,9 @@ print_banner
 case "${1:-help}" in
     auto)
         auto_setup
+        ;;
+    cleanup)
+        cleanup_all
         ;;
     download)
         download_binaries
