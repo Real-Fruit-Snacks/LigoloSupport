@@ -5,8 +5,11 @@ ligolo-agent.exe
 *.tar.gz
 *.zip
 
-# Claude AI files
+# AI/orchestration files
 CLAUDE.md
+AGENTS.md
+.omc/
+.claude/
 
 # OS files
 .DS_Store
