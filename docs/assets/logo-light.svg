@@ -1,0 +1,127 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 220" fill="none">
+  <defs>
+    <!-- Primary gradient: orange tones for light mode -->
+    <linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ea580c"/>
+      <stop offset="40%" stop-color="#ea580c"/>
+      <stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+
+    <!-- Bridge arch gradient: orange to amber -->
+    <linearGradient id="g2" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ea580c"/>
+      <stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+
+    <!-- Tunnel dashed line gradient -->
+    <linearGradient id="g3" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#a8a29e"/>
+      <stop offset="50%" stop-color="#78716c"/>
+      <stop offset="100%" stop-color="#a8a29e"/>
+    </linearGradient>
+
+    <!-- Arrow gradient -->
+    <linearGradient id="g4" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#d97706"/>
+      <stop offset="100%" stop-color="#ea580c"/>
+    </linearGradient>
+
+    <!-- Faint outer glow -->
+    <filter id="softglow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="6" result="blur"/>
+      <feFlood flood-color="#ea580c" flood-opacity="0.1" result="color"/>
+      <feComposite in="color" in2="blur" operator="in" result="shadow"/>
+      <feComposite in="SourceGraphic" in2="shadow" operator="over"/>
+    </filter>
+
+    <!-- Node glow -->
+    <filter id="nodeglow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="4" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+
+  <!-- ===================== LOGOMARK ===================== -->
+  <g transform="translate(58, 40)" filter="url(#softglow)">
+
+    <!-- Hexagonal frame -->
+    <path d="M 80 6 L 140 38 L 140 102 L 80 134 L 20 102 L 20 38 Z"
+          fill="none" stroke="url(#g1)" stroke-width="1.5" opacity="0.35"/>
+
+    <!-- Inner hex subtle fill -->
+    <path d="M 80 14 L 134 42 L 134 98 L 80 126 L 26 98 L 26 42 Z"
+          fill="#ea580c" opacity="0.04"/>
+
+    <!-- Left platform node -->
+    <circle cx="35" cy="90" r="4" fill="#ea580c" opacity="0.9" filter="url(#nodeglow)"/>
+    <circle cx="35" cy="90" r="2" fill="#ffffff"/>
+
+    <!-- Right platform node -->
+    <circle cx="125" cy="90" r="4" fill="#ea580c" opacity="0.9" filter="url(#nodeglow)"/>
+    <circle cx="125" cy="90" r="2" fill="#ffffff"/>
+
+    <!-- Bridge arch connecting the two platforms -->
+    <path d="M 35 90 Q 50 38 80 30 Q 110 38 125 90"
+          stroke="url(#g2)" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.85"/>
+
+    <!-- Dashed tunnel line beneath the arch -->
+    <path d="M 40 98 L 120 98"
+          stroke="url(#g3)" stroke-width="1.5" fill="none" stroke-dasharray="6,4" opacity="0.5"/>
+
+    <!-- Bidirectional traffic arrows on the bridge -->
+    <!-- Right-pointing arrow (top-left of arch) -->
+    <path d="M 52 52 L 62 49 L 58 56" fill="#d97706" opacity="0.7"/>
+    <!-- Left-pointing arrow (top-right of arch) -->
+    <path d="M 108 52 L 98 49 L 102 56" fill="#ea580c" opacity="0.7"/>
+
+    <!-- Center node at apex of bridge -->
+    <circle cx="80" cy="30" r="5" fill="#ea580c" opacity="0.9" filter="url(#nodeglow)"/>
+    <circle cx="80" cy="30" r="2.5" fill="#ffffff"/>
+    <circle cx="80" cy="30" r="8" fill="none" stroke="#d97706" stroke-width="0.8" opacity="0.25"/>
+
+    <!-- Particle dots along bridge path -->
+    <circle cx="48" cy="62" r="1.5" fill="#ea580c" opacity="0.55"/>
+    <circle cx="65" cy="40" r="1.2" fill="#d97706" opacity="0.45"/>
+    <circle cx="95" cy="40" r="1.2" fill="#d97706" opacity="0.45"/>
+    <circle cx="112" cy="62" r="1.5" fill="#ea580c" opacity="0.55"/>
+
+    <!-- Subtle particles near tunnel -->
+    <circle cx="60" cy="100" r="1" fill="#a8a29e" opacity="0.3"/>
+    <circle cx="80" cy="100" r="1.2" fill="#78716c" opacity="0.25"/>
+    <circle cx="100" cy="100" r="1" fill="#a8a29e" opacity="0.3"/>
+
+    <!-- Faint data flow dots along tunnel -->
+    <circle cx="55" cy="98" r="0.8" fill="#ea580c" opacity="0.2"/>
+    <circle cx="70" cy="98" r="0.8" fill="#d97706" opacity="0.18"/>
+    <circle cx="90" cy="98" r="0.8" fill="#d97706" opacity="0.18"/>
+    <circle cx="105" cy="98" r="0.8" fill="#ea580c" opacity="0.2"/>
+
+    <!-- Entry/exit nodes on hex frame -->
+    <circle cx="20" cy="70" r="2" fill="#ea580c" opacity="0.25"/>
+    <circle cx="140" cy="70" r="2" fill="#d97706" opacity="0.25"/>
+  </g>
+
+  <!-- ===================== TYPOGRAPHY ===================== -->
+
+  <!-- "LIGOLOSUPPORT" -->
+  <text x="430" y="108"
+        font-family="'SF Pro Display', 'Inter', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif"
+        font-size="42" font-weight="800" letter-spacing="10"
+        fill="url(#g1)" text-anchor="middle">LIGOLOSUPPORT</text>
+
+  <!-- Thin separator line -->
+  <line x1="260" y1="128" x2="600" y2="128"
+        stroke="url(#g1)" stroke-width="0.8" opacity="0.2"/>
+
+  <!-- Tagline -->
+  <text x="430" y="152"
+        font-family="'SF Mono', 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace"
+        font-size="11.5" font-weight="400" letter-spacing="5.5"
+        fill="#57534e" text-anchor="middle">LIGOLO-NG SETUP AUTOMATION</text>
+
+  <!-- Descriptor -->
+  <text x="430" y="172"
+        font-family="'SF Mono', 'JetBrains Mono', 'Fira Code', monospace"
+        font-size="9" font-weight="400" letter-spacing="3"
+        fill="#a8a29e" text-anchor="middle">BASH  ·  TUN  ·  PIVOTING</text>
+</svg>
